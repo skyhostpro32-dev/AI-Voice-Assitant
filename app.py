@@ -14,13 +14,13 @@ st.set_page_config(
 
 st.title("🎤 AI Voice Assistant")
 
-st.write("Upload WAV audio and get AI voice response")
+st.write("Upload MP3 or WAV audio and get AI response")
 
-# ---------------- FILE UPLOAD ----------------
+# ---------------- FILE UPLOADER ----------------
 
 audio_file = st.file_uploader(
-    "Upload WAV Audio File",
-    type=["wav"]
+    "Upload Audio File",
+    type=["wav", "mp3"]
 )
 
 # ---------------- SPEECH TO TEXT ----------------
@@ -56,6 +56,22 @@ def generate_response(user_text):
     elif "weather" in user_text:
         return "Weather feature can be added later."
 
+    elif "time" in user_text:
+
+        from datetime import datetime
+
+        current_time = datetime.now().strftime("%I:%M %p")
+
+        return f"The current time is {current_time}"
+
+    elif "date" in user_text:
+
+        from datetime import datetime
+
+        current_date = datetime.now().strftime("%d %B %Y")
+
+        return f"Today's date is {current_date}"
+
     elif "bye" in user_text:
         return "Goodbye! Have a great day."
 
@@ -81,29 +97,38 @@ def text_to_speech(text):
 
 if audio_file is not None:
 
-    # Save Uploaded Audio
-    with open("temp.wav", "wb") as f:
+    # Save Uploaded File
+
+    with open(audio_file.name, "wb") as f:
 
         f.write(audio_file.read())
 
-    # Convert Audio to Text
-    user_text = speech_to_text("temp.wav")
+    # Convert Speech to Text
 
-    # Show User Text
+    user_text = speech_to_text(audio_file.name)
+
+    # Display User Text
+
     st.subheader("🗣 You Said")
 
     st.write(user_text)
 
-    # Generate Assistant Response
+    # Generate AI Response
+
     ai_reply = generate_response(user_text)
 
-    # Show AI Response
+    # Display AI Reply
+
     st.subheader("🤖 Assistant Response")
 
     st.write(ai_reply)
 
-    # Convert Response to Voice
+    # Convert AI Response to Audio
+
     audio_path = text_to_speech(ai_reply)
 
-    # Play Audio
+    # Play Audio Response
+
+    st.subheader("🔊 Voice Response")
+
     st.audio(audio_path)
