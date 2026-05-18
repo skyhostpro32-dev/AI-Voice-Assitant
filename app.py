@@ -1,6 +1,7 @@
 import streamlit as st
 import speech_recognition as sr
 from gtts import gTTS
+from pydub import AudioSegment
 import tempfile
 
 # ---------------- PAGE CONFIG ----------------
@@ -22,6 +23,31 @@ audio_file = st.file_uploader(
     "Upload Audio File",
     type=["wav", "mp3"]
 )
+
+# ---------------- CONVERT MP3 TO WAV ----------------
+
+def convert_to_wav(uploaded_file):
+
+    file_name = uploaded_file.name
+
+    # Save uploaded file
+    with open(file_name, "wb") as f:
+
+        f.write(uploaded_file.read())
+
+    # Convert MP3 to WAV
+    if file_name.endswith(".mp3"):
+
+        sound = AudioSegment.from_mp3(file_name)
+
+        wav_file = "converted.wav"
+
+        sound.export(wav_file, format="wav")
+
+        return wav_file
+
+    # If already WAV
+    return file_name
 
 # ---------------- SPEECH TO TEXT ----------------
 
