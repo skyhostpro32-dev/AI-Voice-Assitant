@@ -97,38 +97,29 @@ def text_to_speech(text):
 
 if audio_file is not None:
 
-    # Save Uploaded File
+    # Convert MP3 to WAV if needed
+    audio_path = convert_to_wav(audio_file)
 
-    with open(audio_file.name, "wb") as f:
+    # Speech Recognition
+    user_text = speech_to_text(audio_path)
 
-        f.write(audio_file.read())
-
-    # Convert Speech to Text
-
-    user_text = speech_to_text(audio_file.name)
-
-    # Display User Text
-
+    # Show User Speech
     st.subheader("🗣 You Said")
 
     st.write(user_text)
 
-    # Generate AI Response
-
+    # Generate Response
     ai_reply = generate_response(user_text)
 
-    # Display AI Reply
-
+    # Show AI Response
     st.subheader("🤖 Assistant Response")
 
     st.write(ai_reply)
 
-    # Convert AI Response to Audio
+    # Convert Response to Audio
+    response_audio = text_to_speech(ai_reply)
 
-    audio_path = text_to_speech(ai_reply)
-
-    # Play Audio Response
-
+    # Play Audio
     st.subheader("🔊 Voice Response")
 
-    st.audio(audio_path)
+    st.audio(response_audio)
