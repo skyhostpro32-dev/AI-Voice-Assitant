@@ -2,6 +2,7 @@ import streamlit as st
 import speech_recognition as sr
 from gtts import gTTS
 import tempfile
+from datetime import datetime
 
 # ---------------- PAGE CONFIG ----------------
 
@@ -29,11 +30,10 @@ def speech_to_text(audio_path):
 
     recognizer = sr.Recognizer()
 
-    with sr.AudioFile(audio_path) as source:
-
-        audio = recognizer.record(source)
-
     try:
+        with sr.AudioFile(audio_path) as source:
+
+            audio = recognizer.record(source)
 
         text = recognizer.recognize_google(audio)
 
@@ -58,15 +58,11 @@ def generate_response(user_text):
 
     elif "time" in user_text:
 
-        from datetime import datetime
-
         current_time = datetime.now().strftime("%I:%M %p")
 
         return f"The current time is {current_time}"
 
     elif "date" in user_text:
-
-        from datetime import datetime
 
         current_date = datetime.now().strftime("%d %B %Y")
 
@@ -97,15 +93,20 @@ def text_to_speech(text):
 
 if audio_file is not None:
 
-    # Save Uploaded WAV File
+    # Save uploaded WAV file
 
-    with open("audio.wav", "wb") as f:
+    temp_wav = tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=".wav"
+    )
 
-        f.write(audio_file.read())
+    temp_wav.write(audio_file.read())
 
-    # Convert Speech To Text
+    audio_path = temp_wav.name
 
-    user_text = speech_to_text("audio.wav")
+    # Speech Recognition
+
+    user_text = speech_to_text(audio_path)
 
     # Show User Speech
 
@@ -113,7 +114,7 @@ if audio_file is not None:
 
     st.write(user_text)
 
-    # Generate AI Response
+    # Generate AI Reply
 
     ai_reply = generate_response(user_text)
 
@@ -123,7 +124,7 @@ if audio_file is not None:
 
     st.write(ai_reply)
 
-    # Convert Response To Voice
+    # Convert to Speech
 
     response_audio = text_to_speech(ai_reply)
 
