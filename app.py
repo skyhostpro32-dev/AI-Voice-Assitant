@@ -323,8 +323,11 @@ ai_reply = generate_response(
     speech_style
 )
 # ---------------- MAIN APP ----------------
+# ---------------- MAIN APP ----------------
 
 if audio_file is not None:
+
+    # Save WAV File
 
     temp_wav = tempfile.NamedTemporaryFile(
         delete=False,
@@ -339,31 +342,44 @@ if audio_file is not None:
 
     user_text = speech_to_text(audio_path)
 
+    # Show User Speech
+
     st.subheader("🗣 You Said")
 
     st.write(user_text)
 
-    # AI Response
+    # Generate AI Response
 
-    ai_reply = generate_response(user_text)
+    ai_reply = generate_response(
+        user_text,
+        speech_style
+    )
+
+    # Translate Response
 
     translated_reply = translate_text(
         ai_reply,
         language_option
     )
 
+    # Show AI Response
+
     st.subheader("🤖 Assistant Response")
 
     st.write(translated_reply)
 
-    # Voice Output
+    # Generate Voice
 
-    response_audio = text_to_speech(translated_reply)
+    response_audio = text_to_speech(
+        translated_reply,
+        voice_gender
+    )
+
+    # Play Voice
 
     st.subheader("🔊 Voice Response")
 
     st.audio(response_audio)
-
 # ---------------- FOOTER ----------------
 
 st.markdown("---")
