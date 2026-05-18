@@ -1,7 +1,6 @@
 import streamlit as st
 import speech_recognition as sr
 from gtts import gTTS
-from pydub import AudioSegment
 import tempfile
 
 # ---------------- PAGE CONFIG ----------------
@@ -15,39 +14,14 @@ st.set_page_config(
 
 st.title("🎤 AI Voice Assistant")
 
-st.write("Upload MP3 or WAV audio and get AI response")
+st.write("Upload WAV audio and get AI response")
 
 # ---------------- FILE UPLOADER ----------------
 
 audio_file = st.file_uploader(
-    "Upload Audio File",
-    type=["wav", "mp3"]
+    "Upload WAV Audio File",
+    type=["wav"]
 )
-
-# ---------------- CONVERT MP3 TO WAV ----------------
-
-def convert_to_wav(uploaded_file):
-
-    file_name = uploaded_file.name
-
-    # Save uploaded file
-    with open(file_name, "wb") as f:
-
-        f.write(uploaded_file.read())
-
-    # Convert MP3 to WAV
-    if file_name.endswith(".mp3"):
-
-        sound = AudioSegment.from_mp3(file_name)
-
-        wav_file = "converted.wav"
-
-        sound.export(wav_file, format="wav")
-
-        return wav_file
-
-    # If already WAV
-    return file_name
 
 # ---------------- SPEECH TO TEXT ----------------
 
@@ -123,29 +97,38 @@ def text_to_speech(text):
 
 if audio_file is not None:
 
-    # Convert MP3 to WAV if needed
-    audio_path = convert_to_wav(audio_file)
+    # Save Uploaded WAV File
 
-    # Speech Recognition
-    user_text = speech_to_text(audio_path)
+    with open("audio.wav", "wb") as f:
+
+        f.write(audio_file.read())
+
+    # Convert Speech To Text
+
+    user_text = speech_to_text("audio.wav")
 
     # Show User Speech
+
     st.subheader("🗣 You Said")
 
     st.write(user_text)
 
-    # Generate Response
+    # Generate AI Response
+
     ai_reply = generate_response(user_text)
 
     # Show AI Response
+
     st.subheader("🤖 Assistant Response")
 
     st.write(ai_reply)
 
-    # Convert Response to Audio
+    # Convert Response To Voice
+
     response_audio = text_to_speech(ai_reply)
 
     # Play Audio
+
     st.subheader("🔊 Voice Response")
 
     st.audio(response_audio)
