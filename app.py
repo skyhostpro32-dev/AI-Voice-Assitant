@@ -11,6 +11,127 @@ st.set_page_config(
     layout="centered"
 )
 
+# ---------------- CUSTOM CSS ----------------
+
+st.markdown("""
+<style>
+
+/* ---------------- MAIN APP ---------------- */
+
+.stApp {
+    background: linear-gradient(
+        135deg,
+        #0f172a,
+        #111827,
+        #1e293b
+    );
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ---------------- TITLE ---------------- */
+
+h1 {
+    text-align: center;
+    font-size: 3rem !important;
+    color: #38bdf8 !important;
+    font-weight: 700;
+    margin-bottom: 10px;
+    animation: glow 3s infinite;
+}
+
+p {
+    color: #d1d5db;
+    font-size: 1rem;
+}
+
+/* ---------------- SIDEBAR ---------------- */
+
+section[data-testid="stSidebar"] {
+    background: #111827;
+    border-right: 1px solid #334155;
+}
+
+/* ---------------- FILE UPLOADER ---------------- */
+
+[data-testid="stFileUploader"] {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 15px;
+    border: 2px dashed #38bdf8;
+}
+
+/* ---------------- BUTTON ---------------- */
+
+.stButton > button {
+    width: 100%;
+    background: linear-gradient(
+        90deg,
+        #06b6d4,
+        #3b82f6
+    );
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.stButton > button:hover {
+    transform: scale(1.03);
+}
+
+/* ---------------- AUDIO PLAYER ---------------- */
+
+audio {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 12px;
+}
+
+/* ---------------- SUBHEADERS ---------------- */
+
+h2, h3 {
+    color: #f8fafc !important;
+    margin-top: 20px;
+}
+
+/* ---------------- SELECTBOX ---------------- */
+
+.stSelectbox div[data-baseweb="select"] {
+    background: #1e293b;
+    border-radius: 10px;
+    color: white;
+}
+
+/* ---------------- ANIMATION ---------------- */
+
+@keyframes glow {
+
+    0% {
+        text-shadow: 0 0 5px #38bdf8;
+    }
+
+    50% {
+        text-shadow: 0 0 20px #38bdf8;
+    }
+
+    100% {
+        text-shadow: 0 0 5px #38bdf8;
+    }
+}
+
+/* ---------------- FOOTER ---------------- */
+
+footer {
+    visibility: hidden;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 # ---------------- TITLE ----------------
 
 st.title("🎤 Advanced AI Voice Assistant")
@@ -92,7 +213,7 @@ def generate_response(user_text):
     else:
         return "Sorry, I could not understand your request."
 
-# ---------------- SIMPLE TRANSLATION ----------------
+# ---------------- TRANSLATION ----------------
 
 def translate_text(text, language):
 
@@ -128,8 +249,6 @@ def text_to_speech(text):
 
 if audio_file is not None:
 
-    # Save uploaded WAV file
-
     temp_wav = tempfile.NamedTemporaryFile(
         delete=False,
         suffix=".wav"
@@ -139,42 +258,35 @@ if audio_file is not None:
 
     audio_path = temp_wav.name
 
-    # Convert speech to text
+    # Speech Recognition
 
     user_text = speech_to_text(audio_path)
-
-    # Display user speech
 
     st.subheader("🗣 You Said")
 
     st.write(user_text)
 
-    # Generate AI response
+    # AI Response
 
     ai_reply = generate_response(user_text)
-
-    # Translate response
 
     translated_reply = translate_text(
         ai_reply,
         language_option
     )
 
-    # Show response
-
     st.subheader("🤖 Assistant Response")
 
     st.write(translated_reply)
 
-    # Voice output
+    # Voice Output
 
     response_audio = text_to_speech(translated_reply)
-
-    # Play audio
 
     st.subheader("🔊 Voice Response")
 
     st.audio(response_audio)
+
 # ---------------- FOOTER ----------------
 
 st.markdown("---")
