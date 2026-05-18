@@ -244,7 +244,84 @@ def text_to_speech(text):
     tts.save(temp_audio.name)
 
     return temp_audio.name
+# ---------------- SPEECH STYLE OPTION ----------------
 
+speech_style = st.sidebar.selectbox(
+    "🎭 Response Style",
+    [
+        "Professional",
+        "Funny",
+        "Friendly",
+        "Motivational"
+    ]
+)
+
+# ---------------- AI RESPONSE ----------------
+
+def generate_response(user_text, style):
+
+    # PROFESSIONAL STYLE
+
+    if style == "Professional":
+
+        if "hello" in user_text:
+            return "Hello. How may I assist you today?"
+
+        elif "time" in user_text:
+
+            current_time = datetime.now().strftime("%I:%M %p")
+
+            return f"The current time is {current_time}"
+
+        elif "date" in user_text:
+
+            current_date = datetime.now().strftime("%d %B %Y")
+
+            return f"Today's date is {current_date}"
+
+        else:
+            return "I am processing your request professionally."
+
+    # FUNNY STYLE
+
+    elif style == "Funny":
+
+        if "hello" in user_text:
+            return "Hey there! Ready to talk with the smartest assistant alive?"
+
+        elif "time" in user_text:
+
+            current_time = datetime.now().strftime("%I:%M %p")
+
+            return f"It is {current_time}. Time flies faster than WiFi speed."
+
+        elif "date" in user_text:
+
+            current_date = datetime.now().strftime("%d %B %Y")
+
+            return f"Today is {current_date}. Another beautiful day to avoid homework."
+
+        else:
+            return "Oops! My AI brain needs more coffee to understand that."
+
+    # FRIENDLY STYLE
+
+    elif style == "Friendly":
+
+        return "Hi friend! I'm happy to help you today."
+
+    # MOTIVATIONAL STYLE
+
+    elif style == "Motivational":
+
+        return "Keep pushing forward. Great things take time."
+
+# ---------------- GENERATE RESPONSE ----------------
+
+ai_reply = generate_response(
+    user_text,
+    speech_style
+)
 # ---------------- MAIN APP ----------------
 
 if audio_file is not None:
