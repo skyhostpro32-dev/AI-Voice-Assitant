@@ -1,7 +1,7 @@
 import streamlit as st
 import speech_recognition as sr
 from gtts import gTTS
-import os
+import tempfile
 
 # ---------------- PAGE CONFIG ----------------
 
@@ -14,19 +14,24 @@ st.set_page_config(
 
 st.title("🎤 AI Voice Assistant")
 
-st.write("Simple Voice Assistant without API Key")
+st.write("Upload WAV audio and get AI voice response")
+
+# ---------------- FILE UPLOAD ----------------
+
+audio_file = st.file_uploader(
+    "Upload WAV Audio File",
+    type=["wav"]
+)
 
 # ---------------- SPEECH TO TEXT ----------------
 
-def speech_to_text():
+def speech_to_text(audio_path):
 
     recognizer = sr.Recognizer()
 
-    with sr.Microphone() as source:
+    with sr.AudioFile(audio_path) as source:
 
-        st.info("🎙 Listening... Speak Now")
-
-        audio = recognizer.listen(source)
+        audio = recognizer.record(source)
 
     try:
 
@@ -48,30 +53,14 @@ def generate_response(user_text):
     elif "your name" in user_text:
         return "I am your AI Voice Assistant."
 
-    elif "time" in user_text:
-
-        from datetime import datetime
-
-        current_time = datetime.now().strftime("%I:%M %p")
-
-        return f"The current time is {current_time}"
-
-    elif "date" in user_text:
-
-        from datetime import datetime
-
-        current_date = datetime.now().strftime("%d %B %Y")
-
-        return f"Today's date is {current_date}"
-
     elif "weather" in user_text:
-        return "Weather integration can be added later."
+        return "Weather feature can be added later."
 
     elif "bye" in user_text:
         return "Goodbye! Have a great day."
 
     else:
-        return "Sorry, I did not understand that."
+        return "Sorry, I could not understand."
 
 # ---------------- TEXT TO SPEECH ----------------
 
@@ -79,28 +68,36 @@ def text_to_speech(text):
 
     tts = gTTS(text=text)
 
-    audio_file = "response.mp3"
+    temp_audio = tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=".mp3"
+    )
 
-    tts.save(audio_file)
+    tts.save(temp_audio.name)
 
-    return audio_file
+    return temp_audio.name
 
-# ---------------- BUTTON ----------------
+# ---------------- MAIN APP ----------------
 
-if st.button("🎤 Start Voice Assistant"):
+if audio_file is not None:
 
-    # Convert Speech to Text
-    user_text = speech_to_text()
+    # Save Uploaded Audio
+    with open("temp.wav", "wb") as f:
 
-    # Show User Speech
+        f.write(audio_file.read())
+
+    # Convert Audio to Text
+    user_text = speech_to_text("temp.wav")
+
+    # Show User Text
     st.subheader("🗣 You Said")
 
     st.write(user_text)
 
-    # Generate Response
+    # Generate Assistant Response
     ai_reply = generate_response(user_text)
 
-    # Show AI Reply
+    # Show AI Response
     st.subheader("🤖 Assistant Response")
 
     st.write(ai_reply)
@@ -109,8 +106,4 @@ if st.button("🎤 Start Voice Assistant"):
     audio_path = text_to_speech(ai_reply)
 
     # Play Audio
-    audio_file = open(audio_path, "rb")
-
-    audio_bytes = audio_file.read()
-
-    st.audio(audio_bytes, format="audio/mp3")
+    st.audio(audio_path)
