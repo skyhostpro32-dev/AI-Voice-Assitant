@@ -77,6 +77,32 @@ def generate_response(user_text):
 
     else:
         return "Sorry, I could not understand."
+# ---------------- CONVERT MP3 TO WAV ----------------
+
+from pydub import AudioSegment
+
+def convert_to_wav(uploaded_file):
+
+    file_name = uploaded_file.name
+
+    # Save uploaded file
+    with open(file_name, "wb") as f:
+
+        f.write(uploaded_file.read())
+
+    # Convert MP3 to WAV
+    if file_name.endswith(".mp3"):
+
+        sound = AudioSegment.from_mp3(file_name)
+
+        wav_file = "converted.wav"
+
+        sound.export(wav_file, format="wav")
+
+        return wav_file
+
+    # If already WAV
+    return file_name
 
 # ---------------- TEXT TO SPEECH ----------------
 
