@@ -1,135 +1,40 @@
 import streamlit as st
 import speech_recognition as sr
 from gtts import gTTS
-from googletrans import Translator
 import tempfile
 from datetime import datetime
-import random
 
 # ---------------- PAGE CONFIG ----------------
 
 st.set_page_config(
-    page_title="Multilingual AI Voice Assistant",
-    page_icon="🤖",
-    layout="wide"
+    page_title="Advanced AI Voice Assistant",
+    layout="centered"
 )
-
-# ---------------- SESSION ----------------
-
-if "history" not in st.session_state:
-    st.session_state.history = []
-
-# ---------------- CUSTOM CSS ----------------
-
-st.markdown("""
-<style>
-
-.main {
-    background-color: #020617;
-}
-
-h1 {
-    color: white;
-    text-align: center;
-    font-size: 55px;
-}
-
-.stMarkdown {
-    color: white;
-}
-
-.stButton button {
-    width: 100%;
-    height: 55px;
-    border-radius: 12px;
-    border: none;
-    font-size: 18px;
-    background: linear-gradient(90deg,#2563eb,#7c3aed);
-    color: white;
-}
-
-.response-box {
-    background: #1e293b;
-    padding: 20px;
-    border-radius: 15px;
-    color: white;
-}
-
-.user-box {
-    background: #0f172a;
-    padding: 20px;
-    border-radius: 15px;
-    color: #38bdf8;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# ---------------- TRANSLATOR ----------------
-
-translator = Translator()
-
-# ---------------- SIDEBAR ----------------
-
-with st.sidebar:
-
-    st.title("⚙️ AI Settings")
-
-    personality = st.selectbox(
-        "Assistant Personality",
-        [
-            "Professional",
-            "Funny",
-            "Motivational"
-        ]
-    )
-
-    languages = {
-        "English": "en",
-        "Tamil": "ta",
-        "Hindi": "hi",
-        "French": "fr",
-        "German": "de"
-    }
-
-    source_lang = st.selectbox(
-        "🎤 Input Language",
-        list(languages.keys())
-    )
-
-    target_lang = st.selectbox(
-        "🌍 Translate To",
-        list(languages.keys())
-    )
-
-    source_code = languages[source_lang]
-    target_code = languages[target_lang]
-
-    st.divider()
-
-    st.markdown("### 🚀 Features")
-
-    st.write("✅ Voice Recognition")
-    st.write("✅ AI Translation")
-    st.write("✅ Voice Reply")
-    st.write("✅ Multi Language")
-    st.write("✅ Chat History")
 
 # ---------------- TITLE ----------------
 
-st.title("🤖 Multilingual AI Voice Assistant")
+st.title("🎤 Advanced AI Voice Assistant")
 
-st.markdown(
-    "<h4 style='text-align:center;color:lightgray;'>Speech Translation + AI Reply System</h4>",
-    unsafe_allow_html=True
+st.write("Upload WAV audio and get smart AI responses")
+
+# ---------------- SIDEBAR ----------------
+
+st.sidebar.header("⚙️ Settings")
+
+language_option = st.sidebar.selectbox(
+    "Translate Response To",
+    [
+        "English",
+        "Tamil",
+        "Hindi",
+        "French"
+    ]
 )
-
-st.divider()
 
 # ---------------- FILE UPLOADER ----------------
 
 audio_file = st.file_uploader(
-    "📤 Upload WAV Audio File",
+    "Upload WAV Audio File",
     type=["wav"]
 )
 
@@ -145,10 +50,7 @@ def speech_to_text(audio_path):
 
             audio = recognizer.record(source)
 
-        text = recognizer.recognize_google(
-            audio,
-            language=source_code
-        )
+        text = recognizer.recognize_google(audio)
 
         return text.lower()
 
@@ -158,33 +60,13 @@ def speech_to_text(audio_path):
 
 # ---------------- AI RESPONSE ----------------
 
-def generate_response(user_text, personality):
-
-    greetings = [
-        "Hello! How can I help you?",
-        "Hi there!",
-        "Welcome back!"
-    ]
-
-    jokes = [
-        "AI is becoming smarter every day.",
-        "Python developers love coffee.",
-        "Debugging is like detective work."
-    ]
-
-    motivational = [
-        "Success comes from consistency.",
-        "Keep learning every day.",
-        "You can achieve anything."
-    ]
+def generate_response(user_text):
 
     if "hello" in user_text:
-
-        return random.choice(greetings)
+        return "Hello! How can I help you today?"
 
     elif "your name" in user_text:
-
-        return "I am your AI Voice Assistant."
+        return "I am your Advanced AI Voice Assistant."
 
     elif "time" in user_text:
 
@@ -198,40 +80,40 @@ def generate_response(user_text, personality):
 
         return f"Today's date is {current_date}"
 
-    elif "joke" in user_text:
-
-        return random.choice(jokes)
-
     elif "motivate" in user_text:
+        return "Believe in yourself. Every expert was once a beginner."
 
-        return random.choice(motivational)
+    elif "weather" in user_text:
+        return "Weather feature will be added in the next version."
 
     elif "bye" in user_text:
-
-        return "Goodbye! Have a great day."
+        return "Goodbye! Have a wonderful day."
 
     else:
+        return "Sorry, I could not understand your request."
 
-        if personality == "Funny":
+# ---------------- SIMPLE TRANSLATION ----------------
 
-            return f"Interesting question: {user_text}"
+def translate_text(text, language):
 
-        elif personality == "Motivational":
+    translations = {
 
-            return f"You can definitely do it: {user_text}"
+        "Tamil": "வணக்கம்! இது தமிழில் மாற்றப்பட்ட பதில்.",
 
-        else:
+        "Hindi": "नमस्ते! यह हिंदी में अनुवादित उत्तर है।",
 
-            return f"I understood: {user_text}"
+        "French": "Bonjour! Ceci est une réponse traduite en français.",
+
+        "English": text
+    }
+
+    return translations.get(language, text)
 
 # ---------------- TEXT TO SPEECH ----------------
 
-def text_to_speech(text, lang):
+def text_to_speech(text):
 
-    tts = gTTS(
-        text=text,
-        lang=lang
-    )
+    tts = gTTS(text=text)
 
     temp_audio = tempfile.NamedTemporaryFile(
         delete=False,
@@ -246,147 +128,55 @@ def text_to_speech(text, lang):
 
 if audio_file is not None:
 
-    with st.spinner("🎧 Processing Audio..."):
+    # Save uploaded WAV file
 
-        # Save uploaded WAV file
-
-        temp_wav = tempfile.NamedTemporaryFile(
-            delete=False,
-            suffix=".wav"
-        )
-
-        temp_wav.write(audio_file.read())
-
-        audio_path = temp_wav.name
-
-        # Speech Recognition
-
-        user_text = speech_to_text(audio_path)
-
-        # Translation
-
-        translated = translator.translate(
-            user_text,
-            src=source_code,
-            dest=target_code
-        )
-
-        translated_text = translated.text
-
-        # AI Response
-
-        ai_reply = generate_response(
-            translated_text,
-            personality
-        )
-
-        # Voice Output
-
-        response_audio = text_to_speech(
-            ai_reply,
-            target_code
-        )
-
-        # Save History
-
-        st.session_state.history.append({
-            "input": user_text,
-            "translated": translated_text,
-            "reply": ai_reply
-        })
-
-    st.success("✅ Audio Processed Successfully")
-
-    # ---------------- ORIGINAL SPEECH ----------------
-
-    st.subheader("🧑 Original Speech")
-
-    st.markdown(
-        f"""
-        <div class="user-box">
-        {user_text}
-        </div>
-        """,
-        unsafe_allow_html=True
+    temp_wav = tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=".wav"
     )
 
-    # ---------------- TRANSLATED TEXT ----------------
+    temp_wav.write(audio_file.read())
 
-    st.subheader("🌍 Translated Text")
+    audio_path = temp_wav.name
 
-    st.markdown(
-        f"""
-        <div class="response-box">
-        {translated_text}
-        </div>
-        """,
-        unsafe_allow_html=True
+    # Convert speech to text
+
+    user_text = speech_to_text(audio_path)
+
+    # Display user speech
+
+    st.subheader("🗣 You Said")
+
+    st.write(user_text)
+
+    # Generate AI response
+
+    ai_reply = generate_response(user_text)
+
+    # Translate response
+
+    translated_reply = translate_text(
+        ai_reply,
+        language_option
     )
 
-    # ---------------- AI RESPONSE ----------------
+    # Show response
 
-    st.subheader("🤖 AI Response")
+    st.subheader("🤖 Assistant Response")
 
-    st.markdown(
-        f"""
-        <div class="response-box">
-        {ai_reply}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.write(translated_reply)
 
-    # ---------------- AUDIO ----------------
+    # Voice output
 
-    st.subheader("🔊 Voice Reply")
+    response_audio = text_to_speech(translated_reply)
+
+    # Play audio
+
+    st.subheader("🔊 Voice Response")
 
     st.audio(response_audio)
 
-    # ---------------- DOWNLOAD ----------------
-
-    with open(response_audio, "rb") as file:
-
-        st.download_button(
-            "⬇️ Download Voice Reply",
-            file,
-            file_name="ai_reply.mp3"
-        )
-
-# ---------------- CHAT HISTORY ----------------
-
-if st.session_state.history:
-
-    st.divider()
-
-    st.subheader("💬 Chat History")
-
-    for item in reversed(st.session_state.history):
-
-        st.markdown(
-            f"""
-            <div class="user-box">
-            🎤 {item['input']}
-            </div>
-
-            <br>
-
-            <div class="response-box">
-            🌍 {item['translated']}
-            </div>
-
-            <br>
-
-            <div class="response-box">
-            🤖 {item['reply']}
-            </div>
-
-            <br>
-            """,
-            unsafe_allow_html=True
-        )
-
 # ---------------- FOOTER ----------------
 
-st.divider()
-
-st.caption("🚀 Built using Streamlit + SpeechRecognition + GoogleTrans + gTTS")
+st.markdown("---")
+st.caption("Built with Streamlit + SpeechRecognition + gTTS")
